@@ -27,12 +27,12 @@ mongoose
     if (!admin) {
       await User.create({
         name: "SolarSeva Admin",
-        phone: "9999999999",
-        password: "admin123",
+        phone: "6395869561",
+        password: "arun9561",
         role: "admin",
         city: "Haldwani",
       });
-      console.log("🔑 Admin seeded: phone=9999999999, password=admin123");
+      console.log("🔑 Admin seeded: phone=6395869561, password=arun9561");
     }
   })
   .catch((err) => console.error("MongoDB error:", err));
