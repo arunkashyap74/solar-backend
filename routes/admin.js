@@ -30,6 +30,35 @@ router.post("/technicians", async (req, res) => {
   }
 });
 
+// DELETE /api/admin/technicians/:id — Delete technician
+router.delete("/technicians/:id", async (req, res) => {
+  try {
+
+    const technician = await User.findById(req.params.id);
+
+    if (!technician) {
+      return res.status(404).json({
+        error: "Technician not found",
+      });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: "Technician deleted successfully",
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: "Delete failed",
+    });
+  }
+});
+
 // PATCH /api/admin/users/:id — Toggle active status
 router.patch("/users/:id", async (req, res) => {
   try {
