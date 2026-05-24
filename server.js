@@ -1,3 +1,4 @@
+app.use("/api/auth", require("./routes/auth"));
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
