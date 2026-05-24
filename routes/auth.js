@@ -32,6 +32,7 @@ router.post('/google-login', async (req, res) => {
         email, 
         phone,
         password: Math.random().toString(36).slice(-20),
+       
         avatar: picture,
         role: 'customer',
         city: 'Haldwani',
