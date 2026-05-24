@@ -3,11 +3,50 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { protect } = require("../middleware/auth");
+const { OAuth2Client } = require('google-auth-library');
 
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// ===== Helper Function =====
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 
-// POST /api/auth/register
+// ===== GOOGLE LOGIN =====
+router.post('/google-login', async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const { email, name, picture } = ticket.getPayload();
+    
+    let user = await User.findOne({ email });
+    
+    if (!user) {
+      const phone = email.split('@')[0];
+      user = await User.create({
+        name, 
+        email, 
+        phone,
+        password: Math.random().toString(36).slice(-20),
+        avatar: picture,
+        role: 'customer',
+        city: 'Haldwani',
+      });
+    }
+
+    const jwtToken = signToken(user._id);
+    res.json({ success: true, token: jwtToken, user });
+  } catch (err) {
+    console.error('Google login error:', err);
+    res.status(400).json({ error: 'Google login failed: ' + err.message });
+  }
+});
+
+// ===== REGISTER =====
 router.post("/register", async (req, res) => {
   try {
     const { name, phone, email, password, city } = req.body;
@@ -24,7 +63,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// POST /api/auth/login
+// ===== LOGIN =====
 router.post("/login", async (req, res) => {
   try {
     const { phone, password } = req.body;
@@ -47,12 +86,12 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// GET /api/auth/me — Get current user
+// ===== GET CURRENT USER =====
 router.get("/me", protect, (req, res) => {
   res.json({ success: true, user: req.user });
 });
 
-// PATCH /api/auth/update — Update profile
+// ===== UPDATE PROFILE =====
 router.patch("/update", protect, async (req, res) => {
   try {
     const { name, email, address, city } = req.body;
@@ -67,7 +106,7 @@ router.patch("/update", protect, async (req, res) => {
   }
 });
 
-// POST /api/auth/change-password
+// ===== CHANGE PASSWORD =====
 router.post("/change-password", protect, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
