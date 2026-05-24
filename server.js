@@ -1,4 +1,3 @@
-app.use("/api/auth", require("./routes/auth"));
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -39,6 +38,7 @@ mongoose
   .catch((err) => console.error("MongoDB error:", err));
 
 // ── Routes ─────────────────────────────────────────────────────────────────
+app.use("/api/auth", require("./routes/auth"));
 app.use("/api/auth",     require("./routes/auth"));
 app.use("/api/bookings", require("./routes/bookings"));
 app.use("/api/admin",    require("./routes/admin"));
